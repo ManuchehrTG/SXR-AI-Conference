@@ -1,0 +1,119 @@
+services:
+  celery:
+    restart: unless-stopped
+    build:
+      context: ./celery_app
+      dockerfile: Dockerfile
+    env_file:
+      - ./.deployment/prod/.env
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./celery_app:/app/celery_app
+      - ./configs:/app/configs
+      - ./infrastructure:/app/infrastructure
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  telegram_bot:
+    restart: unless-stopped
+    build:
+      context: ./telegram_bot
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=${TRAEFIK_ENABLE:-false}"
+      - "traefik.http.routers.sxr_ai_conference_telegram_bot.rule=Host(`${TELEGRAM_BOT_DOMAIN}`)"
+      - "traefik.http.routers.sxr_ai_conference_telegram_bot.entrypoints=websecure"
+      - "traefik.http.routers.sxr_ai_conference_telegram_bot.tls=true"
+      - "traefik.http.routers.sxr_ai_conference_telegram_bot.tls.certresolver=myresolver"
+      - "traefik.http.services.sxr_ai_conference_telegram_bot.loadbalancer.server.port=${TELEGRAM_BOT_PORT:-8443}"
+      - "traefik.http.services.sxr_ai_conference_telegram_bot.loadbalancer.server.scheme=http"
+    env_file:
+      - ./.deployment/prod/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./telegram_bot:/app/telegram_bot
+      - ./celery_app:/app/celery_app
+      - ./configs:/app/configs
+      - ./infrastructure:/app/infrastructure
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+      - web
+
+  postgres:
+    image: postgres:16.2
+    restart: unless-stopped
+    env_file:
+      - ./.deployment/prod/.env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+  db-init:
+    build:
+      context: .
+      dockerfile: infrastructure/database/Dockerfile
+    env_file:
+      - ./.deployment/prod/.env
+    environment:
+      DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:${DATABASE_PORT}/${DATABASE_NAME}
+      PYTHONPATH: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - init
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
+  web:
+    external: true

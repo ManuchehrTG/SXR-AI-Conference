@@ -1,0 +1,3 @@
+message: |
+  Подписка: {has_subscription}
+  Купоны: {coupons_str}
