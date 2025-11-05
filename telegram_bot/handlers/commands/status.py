@@ -24,6 +24,7 @@ async def command_status(message: Message, state: FSMContext, bot: Bot, user: Us
 		if event.type == EventType.STUDIO_COUPON_ISSUED:
 			coupons_list.append(telegram_bot_config.STUDIO_COUPON)
 
+	coupons_str = "Отсутствуют"
 	if coupons_list:
 		coupons_str = ", ".join(f"<code>{coupon}</code>" for coupon in coupons_list)
 
