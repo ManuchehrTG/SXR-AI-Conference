@@ -65,7 +65,7 @@ class OffersInlineKeyboard:
 	def club(club_info_url: str):
 		builder = InlineKeyboardBuilder()
 		builder.button(text="💳 Оплатить со скидкой", callback_data=OfferCallbackData(role="user", action="pay_club"))
-		builder.button(text="ℹ️ Что внутри клуба", url=club_info_url)
+		# builder.button(text="ℹ️ Что внутри клуба", url=club_info_url)
 		builder.button(text="◀️ Назад", callback_data=OfferCallbackData(role="user", action="main_menu"))
 		builder.adjust(1)
 		return builder.as_markup()
