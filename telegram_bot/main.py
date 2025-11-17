@@ -18,7 +18,7 @@ from infrastructure.redis import redis, check_redis
 from infrastructure.scheduler import APSchedulerAdapter
 from infrastructure.scheduler.models import JobType, JobConfig
 from middlewares import register_middlewares
-from use_cases.notification import payment_notification, kick_user_notification
+from use_cases.notification import payment_notification, kick_user_notification, check_spamming
 
 async def create_app() -> FastAPI:
 	await db.connect()
@@ -54,8 +54,17 @@ async def create_app() -> FastAPI:
 		timezone=app_config.TIME_ZONE,
 		args=[bot]
 	)
+	check_spamming_job = JobConfig(
+		job_id="check_spamming",
+		func=check_spamming,
+		trigger_type=JobType.INTERVAL,
+		minutes=1,
+		timezone=app_config.TIME_ZONE,
+		args=[bot]
+	)
 	await scheduler.add_job(payment_notification_job)
 	await scheduler.add_job(kick_user_notification_job)
+	await scheduler.add_job(check_spamming_job)
 	await scheduler.start()
 
 	@asynccontextmanager

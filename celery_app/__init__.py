@@ -7,7 +7,10 @@ app = Celery(
 	"telegram_bot",
 	broker=str(redis_config.DSN),
 	backend=None,
-	include=["celery_app.tasks.send_notification"]
+	include=[
+		"celery_app.tasks.send_notification",
+		"celery_app.tasks.send_telegram"
+	]
 )
 
 app.conf.task_default_queue = "telegram_bot"

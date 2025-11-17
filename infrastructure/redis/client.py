@@ -1,11 +1,10 @@
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool
-from redis.exceptions import RedisError, ConnectionError
 
 from configs import redis_config
 from infrastructure.logger import get_logger
 
-logger = get_logger("redis")
+logger = get_logger("async_redis")
 
 pool = ConnectionPool.from_url(str(redis_config.DSN))
 redis = Redis(connection_pool=pool)

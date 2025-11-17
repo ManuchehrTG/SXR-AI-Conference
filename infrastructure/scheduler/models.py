@@ -21,8 +21,8 @@ class JobConfig(BaseModel):
 	cron_expr: str | None = None
 
 	# Для interval-триггера
-	minutes: int | None = None
-	hours: int | None = None
-	days: int | None = None
+	minutes: int = 0
+	hours: int = 0
+	days: int = 0
 
 	timezone: str = "UTC"

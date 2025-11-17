@@ -5,6 +5,8 @@ from zoneinfo import ZoneInfo
 
 from configs import app_config, telegram_bot_config
 from celery_app.tasks.send_notification import send_notification
+from infrastructure.logger import logger
+from infrastructure.redis import redis
 from keyboards.offers import OffersInlineKeyboard
 from repositories.user import UserRepository
 from repositories.subscription import SubscriptionRepository
@@ -57,3 +59,40 @@ async def kick_user_notification(bot: Bot):
 			text = "Ваша подписка истечена!"
 			send_notification.delay(user_id=user.id, text=text)
 
+
+async def check_spamming(bot: Bot):
+	keys = await redis.keys(f"spamming_id:*")
+	for key in keys:
+		data_raw = await redis.hgetall(key)
+		data = {k.decode(): v.decode() for k, v in data_raw.items()}
+
+		if not data:
+			continue
+
+		total = int(data.get("total", 0))
+		processed = int(data.get("processed", 0))
+
+		spamming_id = key.decode().replace("spamming_id:", "")
+
+		successful = int(data.get("successful", 0))
+		failed = int(data.get("failed", 0))
+
+		if total != processed:
+			continue
+
+		admins = await UserRepository.get_admins()
+
+		for admin in admins:
+			try:
+				text = i18n.translate(namespace="responses.spamming", key="results.message", lang=admin.language_code).format(
+					spamming_id=spamming_id,
+					total=total,
+					successful=successful,
+					failed=failed
+				)
+				await bot.send_message(chat_id=admin.id, text=text)
+			except Exception as e:
+				logger.error(f"Failed to send notification [SpammingResults] to admin {admin.id}: {e}")
+
+		await redis.delete(key)
+		await redis.delete("spamming_is_running")

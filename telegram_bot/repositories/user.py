@@ -40,6 +40,11 @@ class UserRepository:
 		return [User(**record) for record in records]
 
 	@staticmethod
+	async def get_admins():
+		records = await db.fetch("SELECT * FROM users WHERE is_admin = TRUE")
+		return [User(**record) for record in records]
+
+	@staticmethod
 	async def update_user_profile(user: User, **kwargs):
 		update_data = kwargs
 
