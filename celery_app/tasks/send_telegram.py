@@ -21,7 +21,10 @@ def send_telegram(self, spamming_id: str, user_id: int, content_type: str, **kwa
 		raise ValueError(f"Unsupported content_type: {content_type}")
 
 	url = f"https://api.telegram.org/bot{telegram_bot_config.TOKEN}/{url_templates[content_type]}"
-	payload = {"chat_id": user_id, **kwargs}
+	payload = {
+		"chat_id": user_id,
+		**kwargs
+	}
 
 	try:
 		sync_http_client.post(url=url, response_type="response", raise_for_status=True, data=payload)

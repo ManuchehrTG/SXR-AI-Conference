@@ -88,10 +88,10 @@ async def handle_run(call: CallbackQuery, callback_data: SpammingCallbackData, s
 
 	if data_state.get("media_json"):
 		content_type = "media_group"
-		payload_kwargs = {"media": json.dumps(data_state["media_json"]), "caption": data_state["text"]}
+		payload_kwargs = {"media": json.dumps(data_state["media_json"])}
 	else:
 		content_type = "text"
-		payload_kwargs = {"text": data_state["text"]}
+		payload_kwargs = {"text": data_state["text"], "parse_mode": "HTML"}
 
 	await redis.hset(f"spamming_id:{spamming_id}", mapping={
 		"total": total_users,

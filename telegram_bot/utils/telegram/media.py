@@ -34,7 +34,9 @@ class MediaProcessing:
 			for message in albom
 		]
 
-		if media:
-			media[0]["caption"] = albom[0].caption
+		if media and albom[0].caption:
+			media[0]["caption"] = albom[0].html_text
+			media[0]["parse_mode"] = "HTML"
+			# media[0]["html_text"] = albom[0].html_text
 
 		return media
