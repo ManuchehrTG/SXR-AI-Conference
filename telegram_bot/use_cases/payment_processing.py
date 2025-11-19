@@ -10,4 +10,4 @@ async def payment_processing():
 			payment = yookassa_payment.get_payment(payment_id=transaction.provider_tx_id)
 			await PaymentService.process_payment(payment=payment)
 		except Exception as e:
-			logger.info(f"Ошибка при обработке транзакции с ID {transaction.id} ({transaction.provider_tx_id})", exc_info=True)
+			logger.error(f"Ошибка при обработке транзакции с ID {transaction.id} ({transaction.provider_tx_id})", exc_info=True)
