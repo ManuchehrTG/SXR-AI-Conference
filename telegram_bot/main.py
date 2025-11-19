@@ -13,12 +13,13 @@ from api.endpoints import yookassa
 from core.container import container
 from configs import app_config, telegram_bot_config
 from infrastructure.database import db
-from infrastructure.logger import logger
+from infrastructure.logger import logger, get_logger
 from infrastructure.redis import redis, check_redis
 from infrastructure.scheduler import APSchedulerAdapter
 from infrastructure.scheduler.models import JobType, JobConfig
 from middlewares import register_middlewares
 from use_cases.notification import payment_notification, kick_user_notification, check_spamming
+from use_cases.payment_processing import payment_processing
 
 async def create_app() -> FastAPI:
 	await db.connect()
@@ -37,6 +38,11 @@ async def create_app() -> FastAPI:
 	dp.include_router(router)
 
 	logger.info("🟢 The bot is running!")
+
+	# Только при старте бота
+	await payment_processing()
+
+	scheduler_logger = get_logger("apscheduler")
 
 	scheduler = APSchedulerAdapter()
 	payment_notification_job = JobConfig(
@@ -66,6 +72,8 @@ async def create_app() -> FastAPI:
 	await scheduler.add_job(kick_user_notification_job)
 	await scheduler.add_job(check_spamming_job)
 	await scheduler.start()
+
+	scheduler_logger.setLevel(30)
 
 	@asynccontextmanager
 	async def lifespan(app: FastAPI):

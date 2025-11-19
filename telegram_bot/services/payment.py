@@ -1,4 +1,5 @@
 import json
+from yookassa import Payment
 
 from repositories.transaction import TransactionRepository
 from schemes.user import User
@@ -41,7 +42,10 @@ class PaymentService:
 	async def process_webhook(data: dict):
 		payment_id = data["object"]["id"]
 		payment = yookassa_payment.get_payment(payment_id=payment_id)
+		await PaymentService.process_payment(payment=payment)
 
+	@staticmethod
+	async def process_payment(payment: Payment):
 		transaction = await TransactionRepository.get_by_provider_tx_id(provider_tx_id=payment.id)
 		if not transaction:
 			return

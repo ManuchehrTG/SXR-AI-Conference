@@ -49,3 +49,8 @@ class TransactionRepository:
 	@staticmethod
 	async def update_status(tx_id: UUID, status: TransactionStatusType):
 		await db.execute("UPDATE transactions SET status = $1 WHERE id = $2", status, tx_id)
+
+	@staticmethod
+	async def get_pending_transactions() -> List[Transaction]:
+		records = await db.fetch("SELECT * FROM transactions WHERE status = 'pending'")
+		return [Transaction(**record) for record in records]
