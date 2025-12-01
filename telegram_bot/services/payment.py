@@ -41,8 +41,11 @@ class PaymentService:
 	@staticmethod
 	async def process_webhook(data: dict):
 		payment_id = data["object"]["id"]
-		payment = yookassa_payment.get_payment(payment_id=payment_id)
-		await PaymentService.process_payment(payment=payment)
+		try:
+			payment = yookassa_payment.get_payment(payment_id=payment_id)
+			await PaymentService.process_payment(payment=payment)
+		except Exception as e:
+			logger.error(f"[WEBHOOK] Ошибка при обработке платежа с ID {payment_id}", exc_info=True)
 
 	@staticmethod
 	async def process_payment(payment: Payment):

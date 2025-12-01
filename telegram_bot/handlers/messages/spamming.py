@@ -18,11 +18,9 @@ router = Router()
 async def message_cancel(message: Message, state: FSMContext, bot: Bot, user: User):
 	await state.clear()
 
-	users = await UserRepository.get_users()
-
 	await message.answer(text=i18n.translate(namespace="responses.base", key="action_cancelled.message", lang=user.language_code), reply_markup=ReplyKeyboardRemove())
 	await message.answer(
-		text=i18n.translate(namespace="commands.admin", key="message", lang=user.language_code).format(count_users=len(users)),
+		text=i18n.translate(namespace="commands.admin", key="message", lang=user.language_code),
 		reply_markup=TemplatesInlineKeyboard.admin_menu()
 	)
 

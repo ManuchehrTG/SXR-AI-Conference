@@ -65,7 +65,7 @@ def send_telegram(self, spamming_id: str, user_id: int, content_type: str, **kwa
 				raise self.retry(countdown=min(60 * (2 ** self.request.retries), 86400), exc=e)
 
 	except (httpx.RequestError, httpx.TimeoutException) as e:
-		logger.error(f"Network/tumeout error: {str(e)}")
+		logger.error(f"Network/timeout error: {str(e)}")
 		raise self.retry(countdown=10 * (self.request.retries + 1), exc=e)
 
 	except MaxRetriesExceededError as e:
