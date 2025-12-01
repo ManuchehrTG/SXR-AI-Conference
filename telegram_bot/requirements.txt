@@ -11,4 +11,4 @@ pydantic-settings==2.10.1
 PyYAML==6.0.2
 redis==6.3.0
 uvicorn==0.35.0
-yookassa==3.7.1
+yookassa==3.8.0
