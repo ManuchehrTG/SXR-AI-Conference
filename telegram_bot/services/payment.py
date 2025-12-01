@@ -6,6 +6,7 @@ from schemes.user import User
 from schemes.transaction import TransactionOfferType, TransactionType, TransactionStatusType
 from services.offer import OfferService
 from services.payments.yookassa import yookassa_payment
+from infrastructure.logger import logger
 
 class PaymentService:
 	@staticmethod

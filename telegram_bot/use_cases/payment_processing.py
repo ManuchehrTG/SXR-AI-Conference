@@ -1,6 +1,7 @@
 from repositories.transaction import TransactionRepository
 from services.payments.yookassa import yookassa_payment
 from services.payment import PaymentService
+from infrastructure.logger import logger
 
 async def payment_processing():
 	transactions = await TransactionRepository.get_pending_transactions()
