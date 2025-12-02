@@ -1,4 +1,4 @@
-import urllib3
+import requests
 from yookassa import Configuration, Payment, Webhook
 from yookassa.client import ApiClient
 
@@ -12,12 +12,15 @@ class YookassaPayment:
 		# Костыль с прокси
 		proxy_url = "http://aCNdUU:KvuDeV@94.127.141.183:8000"
 
-		# proxy = urllib3.ProxyManager(proxy_url)
-		api_client = ApiClient()
-		api_client.requests_session.proxies = {
+		session = requests.Session()
+		session.proxies = {
 			"http": proxy_url,
 			"https": proxy_url
 		}
+
+		api_client = ApiClient()
+		api_client._session = session
+		api_client._create_session = lambda: session
 
 		# назначаем SDK свой HTTP-клиент
 		Configuration.api_client = api_client
