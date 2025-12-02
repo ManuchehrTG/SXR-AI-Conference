@@ -1,5 +1,6 @@
 import urllib3
-from yookassa import Configuration, Payment, Webhook, ApiClient
+from yookassa import Configuration, Payment, Webhook
+from yookassa.client import ApiClient
 
 from configs import yookassa_config
 
