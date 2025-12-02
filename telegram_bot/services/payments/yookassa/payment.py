@@ -1,31 +1,27 @@
-import requests
+import os
 from yookassa import Configuration, Payment, Webhook
-from yookassa.client import ApiClient
+# from yookassa.client import ApiClient
 
 from configs import yookassa_config
 
 class YookassaPayment:
 	def __init__(self):
+		# proxy_url = "https://aCNdUU:Kvusxs@94.127.141.183:8000"
+		os.environ['HTTP_PROXY'] = "https://aCNdUU:KvuDeV@94.127.141.183:8000"
+		os.environ['HTTPS_PROXY'] = "https://aCNdUU:KvuDeV@94.127.141.183:8000"
+		# os.environ['REQUESTS_CA_BUNDLE'] = ""
+
 		Configuration.account_id = yookassa_config.SHOP_ID
 		Configuration.secret_key = yookassa_config.API_KEY
 
 		# Костыль с прокси
-		proxy_url = "https://aCNdUU:KvuDeV@94.127.141.183:8000"
 
-		session = requests.Session()
-		session.proxies = {
-			"http": proxy_url,
-			"https": proxy_url
-		}
-		session.verify = False
-		session.timeout = 10
-
-		api_client = ApiClient()
-		api_client._session = session
-		# api_client._create_session = lambda: session
-
-		# назначаем SDK свой HTTP-клиент
-		Configuration.api_client = api_client
+		# api_client = ApiClient()
+		# api_client.proxies = {
+		# 	"http": proxy_url,
+		# 	"https": proxy_url
+		# }
+		# Configuration.api_client = api_client
 
 
 	def _get_customer_data(self, email: str | None, phone: str | None) -> dict:
