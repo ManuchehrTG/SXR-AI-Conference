@@ -10,7 +10,7 @@ class YookassaPayment:
 		Configuration.secret_key = yookassa_config.API_KEY
 
 		# Костыль с прокси
-		proxy_url = "http://aCNdUU:KvuDeV@94.127.141.183:8000"
+		proxy_url = "https://aCNdUU:KvuDeV@94.127.141.183:8000"
 
 		session = requests.Session()
 		session.proxies = {
