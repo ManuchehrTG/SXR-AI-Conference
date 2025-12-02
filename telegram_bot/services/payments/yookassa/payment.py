@@ -17,10 +17,12 @@ class YookassaPayment:
 			"http": proxy_url,
 			"https": proxy_url
 		}
+		session.verify = False
+		session.timeout = 10
 
 		api_client = ApiClient()
 		api_client._session = session
-		api_client._create_session = lambda: session
+		# api_client._create_session = lambda: session
 
 		# назначаем SDK свой HTTP-клиент
 		Configuration.api_client = api_client
