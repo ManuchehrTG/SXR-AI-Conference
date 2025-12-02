@@ -12,10 +12,15 @@ class YookassaPayment:
 		# Костыль с прокси
 		proxy_url = "http://aCNdUU:KvuDeV@94.127.141.183:8000"
 
-		proxy = urllib3.ProxyManager(proxy_url)
+		# proxy = urllib3.ProxyManager(proxy_url)
+		api_client = ApiClient()
+		api_client.requests_session.proxies = {
+			"http": proxy_url,
+			"https": proxy_url
+		}
 
 		# назначаем SDK свой HTTP-клиент
-		Configuration.api_client = ApiClient(proxy)
+		Configuration.api_client = api_client
 
 
 	def _get_customer_data(self, email: str | None, phone: str | None) -> dict:
