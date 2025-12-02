@@ -1,4 +1,5 @@
-from yookassa import Configuration, Payment, Webhook
+import urllib3
+from yookassa import Configuration, Payment, Webhook, ApiClient
 
 from configs import yookassa_config
 
@@ -6,6 +7,15 @@ class YookassaPayment:
 	def __init__(self):
 		Configuration.account_id = yookassa_config.SHOP_ID
 		Configuration.secret_key = yookassa_config.API_KEY
+
+		# Костыль с прокси
+		proxy_url = "http://aCNdUU:KvuDeV@94.127.141.183:8000"
+
+		proxy = urllib3.ProxyManager(proxy_url)
+
+		# назначаем SDK свой HTTP-клиент
+		Configuration.api_client = ApiClient(proxy)
+
 
 	def _get_customer_data(self, email: str | None, phone: str | None) -> dict:
 		"""Получение данных покупателя"""
